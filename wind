@@ -1,4 +1,4 @@
-/**
+
  * Wind 开屏广告拦截：m.wind.com.cn/smartad/ad/plan
  * 方式：改写响应 JSON，把 data.list 置空（或直接 result=false）
  */
