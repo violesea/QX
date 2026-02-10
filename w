@@ -1,31 +1,35 @@
-(function () {
-  let body = $response.body;
+let body = $response.body;
+if (!body) $done({});
 
-  if (!body) {
-    return $done({});
+try {
+  const obj = JSON.parse(body);
+
+  // 常见结构1：{ data: [] }
+  if (Array.isArray(obj.data)) {
+    obj.data = [];
   }
 
-  try {
-    const obj = JSON.parse(body);
+  // 常见结构2：{ data: { list: [] } }
+  if (obj.data && Array.isArray(obj.data.list)) {
+    obj.data.list = [];
+  }
 
-    // 兼容：只有当结构符合预期才处理
-    if (obj && typeof obj === "object") {
-      // 方案1：保留 result=true 但不给任何广告条目（推荐：更“温和”）
-      if (obj.data && Array.isArray(obj.data.list)) {
-        obj.data.list = [];
-      }
-
-      // 可选：如果你希望更“硬”，可以同时把 result 改成 false
-      // obj.result = false;
-      // obj.errorCode = 0;
-      // obj.errorMessage = "";
-
-      body = JSON.stringify(obj);
+  // 常见结构3：{ data: { records/items/ads: [] } }（防御式）
+  const keys = ["items", "records", "ads", "adList", "listData"];
+  if (obj.data && typeof obj.data === "object") {
+    for (const k of keys) {
+      if (Array.isArray(obj.data[k])) obj.data[k] = [];
     }
-  } catch (e) {
-    // JSON 解析失败就不动它，避免引发闪退/白屏
-    return $done({});
   }
 
-  $done({ body });
-})();
+  // 可选：统一标记成功，避免客户端触发降级兜底再次拉广告
+  if (typeof obj.result === "boolean") obj.result = true;
+  if (typeof obj.errorCode === "number") obj.errorCode = 0;
+  if (typeof obj.errorMessage === "string") obj.errorMessage = "";
+
+  body = JSON.stringify(obj);
+} catch (e) {
+  // JSON 解析失败就放行，不要返回空 body，避免客户端异常
+}
+
+$done({ body });
