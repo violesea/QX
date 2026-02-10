@@ -1,0 +1,36 @@
+/**
+ * Wind 开屏广告拦截：m.wind.com.cn/smartad/ad/plan
+ * 方式：改写响应 JSON，把 data.list 置空（或直接 result=false）
+ */
+
+(function () {
+  let body = $response.body;
+
+  if (!body) {
+    return $done({});
+  }
+
+  try {
+    const obj = JSON.parse(body);
+
+    // 兼容：只有当结构符合预期才处理
+    if (obj && typeof obj === "object") {
+      // 方案1：保留 result=true 但不给任何广告条目（推荐：更“温和”）
+      if (obj.data && Array.isArray(obj.data.list)) {
+        obj.data.list = [];
+      }
+
+      // 可选：如果你希望更“硬”，可以同时把 result 改成 false
+      // obj.result = false;
+      // obj.errorCode = 0;
+      // obj.errorMessage = "";
+
+      body = JSON.stringify(obj);
+    }
+  } catch (e) {
+    // JSON 解析失败就不动它，避免引发闪退/白屏
+    return $done({});
+  }
+
+  $done({ body });
+})();
