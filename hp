@@ -1,0 +1,21 @@
+/**
+ * 脚本名称: Pangolin Stats Mock
+ * 功能描述: 拦截穿山甲广告统计请求，返回伪造的成功响应。
+ */
+
+// 构造一个通用的成功响应体
+const mockBody = {
+    "code": 0,
+    "message": "success",
+    "cypher": -1
+};
+
+// 结束请求，返回 HTTP 200 状态码及 JSON 数据
+$done({
+    status: 200,
+    headers: {
+        "Content-Type": "application/json; charset=utf-8",
+        "Connection": "keep-alive"
+    },
+    body: JSON.stringify(mockBody)
+});
