@@ -1,0 +1,52 @@
+/**
+ * WindMoney Splash killer
+ * Target: sh.windmoney.com.cn/wfgft/fundoperation/pageCustom/detail
+ *
+ * Strategy:
+ * - Filter messageBody.moduleList
+ * - Remove modules that look like "splash image module":
+ *   moduleType == 1006005
+ *   AND relationList contains targetDesc with /fundtool/dw/os?id=
+ *   AND targetUrl is empty (to avoid killing normal clickable banners)
+ */
+
+let body = $response.body;
+if (!body) $done({});
+
+try {
+  const obj = JSON.parse(body);
+
+  const mb = obj && obj.messageBody;
+  const list = mb && Array.isArray(mb.moduleList) ? mb.moduleList : null;
+
+  if (list) {
+    mb.moduleList = list.filter(m => {
+      if (!m) return false;
+
+      const moduleType = String(m.moduleType || "");
+      const rel = Array.isArray(m.relationList) ? m.relationList : [];
+
+      const hasOsImage = rel.some(r => {
+        const td = (r && r.targetDesc) ? String(r.targetDesc) : "";
+        return td.includes("/fundtool/dw/os?id=");
+      });
+
+      const hasEmptyTargetUrl = rel.some(r => {
+        const tu = (r && r.targetUrl != null) ? String(r.targetUrl) : "";
+        return tu.length === 0;
+      });
+
+      // 命中“疑似开屏”模块：删除
+      if (moduleType === "1006005" && hasOsImage && hasEmptyTargetUrl) {
+        return false;
+      }
+      return true;
+    });
+  }
+
+  body = JSON.stringify(obj);
+} catch (e) {
+  // parse fail -> no change
+}
+
+$done({ body });
