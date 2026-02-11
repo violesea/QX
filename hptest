@@ -1,0 +1,9 @@
+[mitm]
+hostname = %APPEND% games.mobileapi.hupu.com, bbs.mobileapi.hupu.com, more.mobileapi.hupu.com, goblin.hupu.com
+
+[rewrite_local]
+# 1) 清 banner / feed / 列表里夹的广告（主力）
+^https?:\/\/(games|bbs|more)\.mobileapi\.hupu\.com\/.*$ url script-response-body https://raw.githubusercontent.com/violesea/QX/main/hupu_killads_universal.js
+
+# 2) 清广告SDK接口（如果有）
+^https?:\/\/goblin\.hupu\.com\/.*$ url script-response-body https://raw.githubusercontent.com/violesea/QX/main/hupu_killads_universal.js
