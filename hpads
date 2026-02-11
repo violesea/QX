@@ -1,0 +1,27 @@
+#!name=虎扑去广告
+#!desc=移除虎扑开屏广告、首页顶部推广、我的页面多余模块及各类横幅推广。
+#!icon=https://gitlab.com/lodepuly/iconlibrary/-/raw/main/App_icon/120px/HUPU.png
+#!category=去广告
+#!open=https://apps.apple.com/app/id1286983622
+#!date=2024-07-24 14:40:11
+
+[mitm]
+hostname = %APPEND% games.mobileapi.hupu.com, fairy.mobileapi.hupu.com, bbs.mobileapi.hupu.com, goblin.hupu.com
+
+[rewrite_local]
+^https:\/\/games\.mobileapi\.hupu\.com\/\d\/\d\.\d\.\d+\/bplapi\/reddot\/v1\/app\/getReddot(\?.*)?$ url reject-dict
+^https:\/\/bbs\.mobileapi\.hupu\.com\/\d\/\d\.\d\.\d+\/(bbsallapi\/tag\/v1\/heatTag|bbsrankapi\/v1\/rating\/list)(\?.*)?$ url reject-dict
+^https:\/\/games\.mobileapi\.hupu\.com\/\d\/\d\.\d\.\d+\/search\/v2\/(hintkeylist|hotkeylist)(\?.*)?$ url reject-dict
+^https:\/\/goblin\.hupu\.com\/\d\/\d\.\d\.\d+\/interfaceAd\/getOther\/v\d(\?.*)?$ url reject-dict
+^https:\/\/goblin\.hupu\.com\/\d\/\d\.\d\.\d+\/interfaceAd\/getOther\/batch(\?.*)?$ url reject-dict
+^https:\/\/fairy\.mobileapi\.hupu\.com\/gallery\/getmod2(\?.*)?$ url reject-200
+^https:\/\/games\.mobileapi\.hupu\.com\/3\/8\.0\.86\/bplcommentapi\/bpl\/score_tab\/groups(\?.*)?$ url reject-dict
+^https:\/\/games\.mobileapi\.hupu\.com\/3\/8\.0\.86\/bplapi\/banner\/getLocationBanners(\?.*)?$ url reject-dict
+
+[script]
+# 原 YAML 的 script-providers：HUPU_remove_ads.js
+# 下面 4 条为“脚本重写响应体”，与 YAML 的 match/name/type/require-body 对应
+虎扑去广告 = type=http-response,pattern=^https:\/\/fairy\.mobileapi\.hupu\.com\/mang\/preview\/banners(\?.*)?$,requires-body=1,max-size=0,script-path=https://gitlab.com/lodepuly/vpn_tool/-/raw/master/Resource/Script/HUPU/HUPU_remove_ads.js
+虎扑去广告 = type=http-response,pattern=^https:\/\/bbs\.mobileapi\.hupu\.com\/\d\/\d\.\d\.\d+\/bbsallapi\/lego\/data(\?.*)?$,requires-body=1,max-size=0,script-path=https://gitlab.com/lodepuly/vpn_tool/-/raw/master/Resource/Script/HUPU/HUPU_remove_ads.js
+虎扑去广告 = type=http-response,pattern=^https:\/\/games\.mobileapi\.hupu\.com\/\d\/\d\.\d\.\d+\/buffer\/hotList(\?.*)?$,requires-body=1,max-size=0,script-path=https://gitlab.com/lodepuly/vpn_tool/-/raw/master/Resource/Script/HUPU/HUPU_remove_ads.js
+虎扑去广告 = type=http-response,pattern=^https:\/\/games\.mobileapi\.hupu\.com\/\d\/\d\.\d\.\d+\/bplapi\/user\/v1\/more(\?.*)?$,requires-body=1,max-size=0,script-path=https://gitlab.com/lodepuly/vpn_tool/-/raw/master/Resource/Script/HUPU/HUPU_remove_ads.js
